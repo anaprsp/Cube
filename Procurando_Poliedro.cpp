@@ -1,50 +1,57 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
-#include "anemona.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GL/GLAux.h>
+#include "anemona.h"
 
-double rot_y=0; 
-double rot_x=0;
-int sourceFace=0;
-int height;
+
 int width;
-bool open=false;
-GLfloat angle=0;
-GLfloat pAngle; 
-int type=HEXAHEDRON;
-char * imageFile = (char *)"Nemo.bmp";
-int NumFaces=6;
-vector<vector<GLfloat> > texCoordMatrix;
-vector<vector<pair<GLfloat, GLfloat> > > texCoord;
-bool updateTexture = true;
-bool showEditor=false;
-vector<pair<int, int> > movingVertices;
-int max_x, max_y = -3;
-int min_x, min_y = 3;
+int height;
 int dx, dy = 0;
-vector<vector<vector<GLfloat> > > facesModelview(NumFaces);
-vector<vector<vector<GLfloat> > > facesProjection(NumFaces);
+int NumFaces=6;
+int sourceFace=0;
+int type=Cubo;
+int min_x, min_y = 3;
+int max_x, max_y = -3;
 
+double rot_x=0;
+double rot_y=0; 
+
+bool open=false; 
+bool tipo=false;
+bool showEditor=false;
+bool updateTexture = true;
+
+GLfloat pAngle;
+GLfloat angle=0;
 
 GLuint textureID;
 AUX_RGBImageRec *myPixelArray; 
 
+char * imageFile = (char *)"Nemo.bmp";
+
+vector<pair<int, int> > movingVertices;
+vector<vector<GLfloat> > texCoordMatrix;
+vector<vector<pair<GLfloat, GLfloat> > > texCoord;
+vector<vector<vector<GLfloat> > > facesModelview(NumFaces);
+vector<vector<vector<GLfloat> > > facesProjection(NumFaces);
+
+//////////////////////////////////////////////////////////////////////////////
 AUX_RGBImageRec *LoadBMP(char *Filename){
 	FILE *File=NULL;
 	if (!Filename) {
 		return NULL;         
 	}
 	File=fopen(Filename,"r");	
-	if (File)	// Se o arquivo existe
+	if (File)
 	{
 		fclose(File);			        
-		return auxDIBImageLoad(Filename);//Retorna a imagem
+		return auxDIBImageLoad(Filename);
 	}
 	return NULL;			
 }
-
+//////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > getModelview() {
 	vector<vector<GLfloat> > modelview(4);
 	GLfloat mv[16];
@@ -59,7 +66,7 @@ vector<vector<GLfloat> > getModelview() {
 	modelview = transpose(modelview);
 	return modelview;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > getProjection() {
 	vector<vector<GLfloat> > projection(4);
 	GLfloat pj[16];
@@ -74,7 +81,7 @@ vector<vector<GLfloat> > getProjection() {
 	projection=transpose(projection);
 	return projection;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > updateTexCoord(int i, Poliedro ph) {
 	vector<vector<GLfloat> > vertices=ph.vertices;
 	vector<vector<int> > faces=ph.faces;
@@ -107,7 +114,7 @@ vector<vector<GLfloat> > updateTexCoord(int i, Poliedro ph) {
 	m=inverse(m);
 	return m;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void updateFaceTexCoord(int i, Poliedro p) {
 	vector<vector<GLfloat> > vertices=p.vertices;
 	vector<int> face=p.faces[i];
@@ -132,28 +139,26 @@ void updateFaceTexCoord(int i, Poliedro p) {
 		min_y = floor(min(texCoord[i][j].second, (float)min_y));
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void initializeTexCoord() {
 	texCoord.resize(NumFaces);
 	switch (NumFaces) {
 		case 6:
-			{
-				for (int i=0; i<texCoord.size(); i++) {
+			{ for (int i=0; i<texCoord.size(); i++) {
 					texCoord[i].resize(4);
 				}
 				break;
 		case 12:
-			{
-				for (int i=0; i<texCoord.size(); i++) {
+			{ for (int i=0; i<texCoord.size(); i++) {
 					texCoord[i].resize(5);
-				}
-				break;
+				} break;
 			}
 		default:
 			break;
-	}
+	    }
+    }
 }
-}
+//////////////////////////////////////////////////////////////////////////////
 void drawPolyhedron() {
 	Poliedro polyhedron(type);
 	pAngle=polyhedron.angulo;
@@ -179,7 +184,7 @@ void drawPolyhedron() {
 	}
 	facesModelview[sourceFace]=getModelview();
 	facesProjection[sourceFace]=getProjection();
-	polyhedron.drawFace(sourceFace, texCoord[sourceFace]);
+	polyhedron.DesenhaFace(sourceFace, texCoord[sourceFace]);
 	for (int i=0; i<NumFaces; i++) {
 		if (i==sourceFace) {
 			continue;
@@ -206,7 +211,7 @@ void drawPolyhedron() {
 			}
 			facesModelview[i]=getModelview();
 			facesProjection[i]=getProjection();
-			polyhedron.drawFace(i, texCoord[i]);
+			polyhedron.DesenhaFace(i, texCoord[i]);
 		glPopMatrix();
 	}
 	if (updateTexture) {
@@ -235,7 +240,7 @@ void drawPolyhedron() {
 	}
 	glPopMatrix();
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void drawEditor() {
 	glClearColor(0,0,0,1);	
 	glDisable(GL_LIGHTING);
@@ -268,7 +273,7 @@ void drawEditor() {
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void display(){
 	int x, y, w, h;
 	if (showEditor) {
@@ -293,12 +298,12 @@ void display(){
 	    glFlush();
     glutSwapBuffers();
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void myTimer(int id) {
 	glutPostRedisplay();
 	glutTimerFunc(25, myTimer, 0);
 }
- 
+//////////////////////////////////////////////////////////////////////////////
 void myReshape(int w, int h) {
 	height=h;
 	width=w;
@@ -308,22 +313,19 @@ void myReshape(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 	glutPostRedisplay();
 }
- 
+////////////////////////////////////////////////////////////////////////////// 
 void comandos( int key, int x, int y ) {
   if (key == GLUT_KEY_RIGHT)
     rot_y += 10;
-  
   else if (key == GLUT_KEY_LEFT)
     rot_y -= 10;
-  
   else if (key == GLUT_KEY_UP)
     rot_x += 10;
-  
   else if (key == GLUT_KEY_DOWN)
     rot_x -= 10;
   glutPostRedisplay(); 
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void initializeTexture() {
 	myPixelArray = LoadBMP(imageFile);
 	GLuint textureID; // the ID of this texture
@@ -338,7 +340,6 @@ void initializeTexture() {
 	
 	glEnable(GL_TEXTURE_2D); // enable texturing
 	glBindTexture(GL_TEXTURE_2D, textureID); // select the active texture
-	// (use GL_REPLACE below for skyboxes)
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	// repeat texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -347,31 +348,24 @@ void initializeTexture() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	
-	
-	
-	GLfloat tcArray[][4] = { {1.0f, 0.0f, 0.0f, 0.5f},
-							 {0.0f, 1.0f, 0.0f, 0.5f},
-							 {0.0f, 0.0f, 1.0f, 0.0f},
-							 {0.0f, 0.0f, 0.0f, 1.0f},
-							};
+	GLfloat tcArray[][4] = { {1.0f, 0.0f, 0.0f, 0.5f},{0.0f, 1.0f, 0.0f, 0.5f},{0.0f, 0.0f, 1.0f, 0.0f},{0.0f, 0.0f, 0.0f, 1.0f}};
 	texCoordMatrix.resize(4);
 	for (int i=0; i<4; i++) {
 		texCoordMatrix[i].resize(4);
 		for (int j=0; j<4; j++) {
 			texCoordMatrix[i][j]=tcArray[i][j];
 		}
-		
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void polyhedronMenu(int option) {
 	switch (option) {
 		case 1:
-			type = HEXAHEDRON;
+			type = Cubo;
 			NumFaces = 6;
 			break;
-		case 2:
-			type = DODECAHEDRON;
+		case 3:
+			type = Dodecaedro;
 			NumFaces = 12;
 			break;
 	}
@@ -384,8 +378,7 @@ void polyhedronMenu(int option) {
 	initializeTexCoord();
 	glutPostRedisplay();
 }
-
-
+//////////////////////////////////////////////////////////////////////////////
 void textureMenu(int option) {
 	switch(option) {
 		case 0:
@@ -398,7 +391,7 @@ void textureMenu(int option) {
 	initializeTexture();
 	glutPostRedisplay();
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void mainMenu(int option){
 	if (!option && !showEditor) {
 		showEditor=true;
@@ -407,13 +400,13 @@ void mainMenu(int option){
 	}
 	glutPostRedisplay();
 }
-//Estrutura do Menu de seleção
+//Estrutura do Menu de seleção/////////////////////////////////////////////////
 void createMenu() {
 	int menu, submenu1, submenu2;
 	
 	submenu1 = glutCreateMenu(polyhedronMenu);
-	glutAddMenuEntry("Hexaedro",1);
-	glutAddMenuEntry("Dodecaedro",3);
+	glutAddMenuEntry("Cubo",1);
+	glutAddMenuEntry("Dodecaedro",2);
 	
 	submenu2 = glutCreateMenu(textureMenu);
 	glutAddMenuEntry("Nemo", 0);
@@ -426,7 +419,7 @@ void createMenu() {
 	
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
-
+//////////////////////////////////////////////////////////////////////////////
 vector<pair<int, int> > getVertex(int x, int y) {
 	vector<pair<int, int> > ret;
 	for (int i=0; i<texCoord.size(); i++) {
@@ -440,7 +433,7 @@ vector<pair<int, int> > getVertex(int x, int y) {
 	}
 	return ret;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 pair<GLfloat, GLfloat> windowCoordinates(vector<GLfloat> c, int face) {
 	int h=min(height, width/2);
 	vector<vector<GLfloat> > modelview=facesModelview[face];
@@ -456,7 +449,7 @@ pair<GLfloat, GLfloat> windowCoordinates(vector<GLfloat> c, int face) {
 	ret.second=(showEditor ? height-(dy+(ret.second+1)*height/2.0) : height-(max(0, (height-width)/2)+(ret.second+1)*min(width, height)/2.0));
 	return ret;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 int index(int x, int y) {
 	Poliedro p(type);
 	vector<vector<GLfloat> > vertices=p.vertices;
@@ -490,7 +483,7 @@ int index(int x, int y) {
 	}
 	return -1;
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void myMouse(int b, int s, int x, int y) {
 	if (b==GLUT_LEFT_BUTTON) {
 		if (!showEditor || (x>height)) {
@@ -517,7 +510,7 @@ void myMouse(int b, int s, int x, int y) {
 		}
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void myMotion(int x, int y) {
 	for (int i=0; i<movingVertices.size(); i++) {
 		cout << "OK" << endl;
@@ -530,17 +523,17 @@ void myMotion(int x, int y) {
 		glutPostRedisplay();
 	}
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void myKeyboard(unsigned char key, int x, int y ) {
-	if (key=='1') {
-		type=HEXAHEDRON;
+	if (key=='h'|| key=='H') {
+		type=Cubo;
 		open=false;
 		NumFaces=6;
 		angle=0.0f;
 		sourceFace = 0;
 		updateTexture = true;
-	} else if (key=='2') {
-		type=DODECAHEDRON;
+	} else if (key=='d' || key=='D') {
+		type=Dodecaedro;
 		open=false;
 		NumFaces=12;
 		angle=0.0f;
@@ -552,22 +545,19 @@ void myKeyboard(unsigned char key, int x, int y ) {
 	facesProjection.resize(NumFaces);
 	glutPostRedisplay();
 }
-
+//////////////////////////////////////////////////////////////////////////////
 void initializations() {
-	glClearColor(0.0, 0.0, 0.0, 1.0); // intentionally background
-	glEnable(GL_NORMALIZE); // normalize normal vectors
-	glShadeModel(GL_SMOOTH); // do smooth shading
-	glEnable(GL_LIGHTING); // enable lighting
-	// ambient light (red)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+	glEnable(GL_NORMALIZE);
+	glShadeModel(GL_SMOOTH);
+	glEnable(GL_LIGHTING); 
 	GLfloat ambientIntensity[4] = {0.8, 0.8, 0.8, 1.0};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientIntensity);
-	// set up light 0 properties
-	GLfloat lt0Intensity[4] = {1.5, 1.5, 1.5, 1.0}; // white
+	GLfloat lt0Intensity[4] = {1.5, 1.5, 1.5, 1.0};
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lt0Intensity);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, lt0Intensity);
-	GLfloat lt0Position[4] = {2.0, 4.0, 5.0, 1.0}; // location
+	GLfloat lt0Position[4] = {2.0, 4.0, 5.0, 1.0};
 	glLightfv(GL_LIGHT0, GL_POSITION, lt0Position);
-	// attenuation params (a,b,c)
 	glLightf (GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.0);
 	glLightf (GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.0);
 	glLightf (GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1);
@@ -576,11 +566,12 @@ void initializations() {
 	initializeTexCoord();
 	createMenu();
 }
+//////////////////////////////////////////////////////////////////////////////
 int main(int argc, char* argv[]){
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowSize(1080,540);
-  glutCreateWindow("Procurando Nemo");
+  glutCreateWindow("Procurando Poliedros");
   glEnable(GL_DEPTH_TEST);
   glutDisplayFunc(display);
   glutSpecialFunc(comandos);

@@ -5,27 +5,39 @@
 #include <algorithm>
 #include <utility>
 #include <cmath>
-#define HEXAHEDRON 2
-#define DODECAHEDRON 4
+#define Cubo 1
+#define Dodecaedro 0
 
 using namespace std;
 
+void printm(vector<vector<GLfloat> > mat) {
+	for (int i=0; i<mat.size(); i++) {
+		cout << "[ ";
+		for (int j=0; j<mat[i].size(); j++) {
+			cout << mat[i][j] << " ";
+		}
+		cout << "]" << endl;
+	}
+}
+/////////////////////////////////////////////////////////////////////////
 vector<GLfloat> sub( vector<GLfloat> a, vector<GLfloat> b) {
-    	vector<GLfloat> ret;
+    	vector<GLfloat> ret(3);
     	ret[0]=a[0]-b[0];
     	ret[1]=a[1]-b[1];
     	ret[2]=a[2]-b[2];
     	return ret;
 }
+/////////////////////////////////////////////////////////////////////////
 vector<GLfloat> crossProduct( vector<GLfloat> u, vector<GLfloat> v) {
-	vector<GLfloat> ret;
+	vector<GLfloat> ret(3);
 	ret[0] = u[1]*v[2] - u[2]*v[1];
 	ret[1] = u[2]*v[0] - u[0]*v[2];
 	ret[2] = u[0]*v[1] - u[1]*v[0];
 	return ret;
 }
+/////////////////////////////////////////////////////////////////////////
 vector<GLfloat> normalize( vector<GLfloat> v) {
-	vector<GLfloat> ret;
+	vector<GLfloat> ret(3);
 	GLfloat mod=sqrt(pow(v[0],2) + pow(v[1],2) + pow(v[2],2));
 	ret[0]=v[0]/mod;
 	ret[1]=v[1]/mod;
@@ -97,7 +109,7 @@ vector<vector<GLfloat> > coToVe(vector<GLfloat> v, int w) {
 	return ret;
 }
 vector<GLfloat> veToCo(vector<vector<GLfloat> > v) {
-	vector<GLfloat> ret;
+	vector<GLfloat> ret(3);
 	ret[0]=v[0][0];
 	ret[1]=v[1][0];
 	ret[2]=v[2][0];
@@ -197,23 +209,18 @@ class Poliedro{
 	Poliedro(bool tipo){
 		if (tipo){
 			angulo = 90;
-				GLfloat v[][3]={{0.5, -0.5, 0.5},{0.5, 0.5, 0.5},{-0.5, -0.5, 0.5},{-0.5, -0.5, 0.5},{0.5, -0.5, -0.5},{0.5, 0.5, -0.5},{-0.5, 0.5, -0.5},{-0.5, -0.5, -0.5}};
+				GLfloat v[][3]={{0.5, -0.5, 0.5},{0.5, 0.5, 0.5},{-0.5, 0.5, 0.5},{-0.5, -0.5, 0.5},{0.5, -0.5, -0.5},{0.5, 0.5, -0.5},{-0.5, 0.5, -0.5},{-0.5, -0.5, -0.5}};
 				for (int i=0; i<8; i++) {
 					vector<GLfloat> vertice(v[i], v[i]+sizeof(v[i])/sizeof(GLfloat));
 					vertices.push_back(vertice);
 				}
-				int f[][4]={{0,1,2,3},
-				   {7,6,5,4},
-				   {4,5,1,0},
-				   {3,2,6,7},
-				   {1,5,6,2},
-				   {4,0,3,7}};
+				int f[][4]={{0,1,2,3},{7,6,5,4},{4,5,1,0},{3,2,6,7},{1,5,6,2},{4,0,3,7}};
 				for (int i=0; i<6; i++) {
 					vector<int> face(f[i], f[i]+sizeof(f[i])/sizeof(int));
 					faces.push_back(face);
 				}
 				generateArestas();
-		}
+		    }
 		else{
 			angulo = 180-acos(-1.0/sqrt(5))*180/M_PI;
 			GLfloat t=(1.0 + sqrt(5.0)) / 2.0; 
@@ -223,19 +230,7 @@ class Poliedro{
 				vector<GLfloat> vertice(v[i], v[i]+sizeof(v[i])/sizeof(GLfloat));
 				vertices.push_back(vertice);
 			}
-			int f[][5]={{3, 11,  7, 15, 13},
-				{7, 19, 17, 6, 15},
-				{17,  4,  8, 10, 6},
-				{8,  0, 16,  2, 10},
-				{0, 12,  1, 18, 16},
-				{6, 10,  2, 13, 15},
-				{2, 16, 18, 3, 13},
-				{18,  1, 9, 11,  3},
-				{4, 14, 12, 0, 8},
-				{11, 9, 5, 19, 7},
-				{19, 5, 14, 4, 17},
-				{1, 12, 14, 5,  9}};
-			
+			int f[][5]={{3, 11,  7, 15, 13},{7, 19, 17, 6, 15},{17,  4,  8, 10, 6},{8,  0, 16,  2, 10},{0, 12,  1, 18, 16},{6, 10,  2, 13, 15},{2, 16, 18, 3, 13},{18,  1, 9, 11,  3},{4, 14, 12, 0, 8},{11, 9, 5, 19, 7},{19, 5, 14, 4, 17},{1, 12, 14, 5,  9}};
 			for (int i=0; i<12; i++) {
 				vector<int> face(f[i], f[i]+sizeof(f[i])/sizeof(int));
 				faces.push_back(face);
@@ -244,7 +239,7 @@ class Poliedro{
 		}
 	}
 	
-	void drawFace(int i, vector<pair<GLfloat, GLfloat> > tc) {
+	void DesenhaFace(int i, vector<pair<GLfloat, GLfloat> > tc) {
 		GLfloat color[] = {0.0, 0.0, 1.0, 1.0};
 		GLfloat white[]  ={1.0, 1.0, 1.0, 1.0};
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, white);
@@ -263,6 +258,7 @@ class Poliedro{
 			}
 		glEnd();
 	}
+	
 	void bfs(int sourceFace) {
 		vector<bool> marking(faces.size());
 		vector<vector<int> > adjacencyVector(faces.size());
@@ -353,4 +349,3 @@ class Poliedro{
 		return ret;
 	}
 };
-
