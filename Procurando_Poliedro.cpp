@@ -1,10 +1,17 @@
+//Trabalho Final da disciplina Computação Gráfica - EEL882 
+//Professor Cláudio Esperança
+//UFRJ
+
+//O código foi implementado para somente 2 tipos de Poliedro, o Hexaedro(Cubo) e o Dodecaedro. Para conferir as opções de Poliedros, Texturas 
+//e o Editor de Textura, basta clicar com o botão direito do mouse em qualquer parte do escopo da janela que aparecerá o Menu!!
+//Para rotacionar o poliedro, aberto ou fechado, basta usar as setas do teclado.
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
 #define GL_GLEXT_PROTOTYPES
 #include <GL/GLAux.h>
 #include "anemona.h"
-
 
 int width;
 int height;
@@ -163,7 +170,6 @@ void drawPolyhedron() {
 	Poliedro polyhedron(type);
 	pAngle=polyhedron.angulo;
 	polyhedron.bfs(sourceFace);
-
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
   	glLoadIdentity();
   	glMatrixMode(GL_PROJECTION);
@@ -260,7 +266,7 @@ void drawEditor() {
 	}
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glDisable(GL_TEXTURE_2D);
-	glColor3f(0.0f, 0.0f, 1.0f);
+	glColor3f(1.0f, 0.078f, 0.576f);
 	glLineWidth(3);
 	for (int i=0; i<NumFaces; i++) {
 		glBegin(GL_LINE_LOOP);
@@ -328,26 +334,17 @@ void comandos( int key, int x, int y ) {
 //////////////////////////////////////////////////////////////////////////////
 void initializeTexture() {
 	myPixelArray = LoadBMP(imageFile);
-	GLuint textureID; // the ID of this texture
-	glGenTextures(1, &textureID); // assign texture ID
-	glBindTexture(GL_TEXTURE_2D, textureID); // make this the active texture
-	//
-	// ... input image nRows x nCols into RGB array myPixelArray
-	//
+	GLuint textureID; 
+	glGenTextures(1, &textureID); 
+	glBindTexture(GL_TEXTURE_2D, textureID);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, myPixelArray->sizeX, myPixelArray->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, myPixelArray->data);
-	// generate mipmaps (see below)
-//	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, nCols, nRows, GL_RGB,	GL_UNSIGNED_BYTE, myPixelArray);
-	
-	glEnable(GL_TEXTURE_2D); // enable texturing
-	glBindTexture(GL_TEXTURE_2D, textureID); // select the active texture
+	glEnable(GL_TEXTURE_2D); 
+	glBindTexture(GL_TEXTURE_2D, textureID); 
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	// repeat texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// reasonable filter choices
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
 	GLfloat tcArray[][4] = { {1.0f, 0.0f, 0.0f, 0.5f},{0.0f, 1.0f, 0.0f, 0.5f},{0.0f, 0.0f, 1.0f, 0.0f},{0.0f, 0.0f, 0.0f, 1.0f}};
 	texCoordMatrix.resize(4);
 	for (int i=0; i<4; i++) {
@@ -406,7 +403,7 @@ void createMenu() {
 	
 	submenu1 = glutCreateMenu(polyhedronMenu);
 	glutAddMenuEntry("Cubo",1);
-	glutAddMenuEntry("Dodecaedro",2);
+	glutAddMenuEntry("Dodecaedro",3);
 	
 	submenu2 = glutCreateMenu(textureMenu);
 	glutAddMenuEntry("Nemo", 0);

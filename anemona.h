@@ -10,15 +10,6 @@
 
 using namespace std;
 
-void printm(vector<vector<GLfloat> > mat) {
-	for (int i=0; i<mat.size(); i++) {
-		cout << "[ ";
-		for (int j=0; j<mat[i].size(); j++) {
-			cout << mat[i][j] << " ";
-		}
-		cout << "]" << endl;
-	}
-}
 /////////////////////////////////////////////////////////////////////////
 vector<GLfloat> sub( vector<GLfloat> a, vector<GLfloat> b) {
     	vector<GLfloat> ret(3);
@@ -63,7 +54,17 @@ vector<vector<GLfloat> > transpose(vector<vector<GLfloat> > m) {
 	}
 	return ret;
 }
-//calculo do determinante
+//////////////////////////////////////////////////////////////////////////
+void printm(vector<vector<GLfloat> > mat) {
+	for (int i=0; i<mat.size(); i++) {
+		cout << "[ ";
+		for (int j=0; j<mat[i].size(); j++) {
+			cout << mat[i][j] << " ";
+		}
+		cout << "]" << endl;
+	}
+}
+/////////////////////////////////////////////////////////////////////
 GLfloat determinant(vector<vector<GLfloat> > m) {
 	if (m.size()==1) {
 		return m[0][0];
@@ -79,6 +80,7 @@ GLfloat determinant(vector<vector<GLfloat> > m) {
 	}
 	return sum;
 }
+////////////////////////////////////////////////////////////////////////////////////
 int Orientation3p(vector<vector<GLfloat> > p, vector<vector<GLfloat> > q, vector<vector<GLfloat> > r) {
 	vector<vector<GLfloat> > a[3]={p, q, r};
 	vector<vector<GLfloat> > matrix(3);
@@ -100,6 +102,7 @@ int Orientation3p(vector<vector<GLfloat> > p, vector<vector<GLfloat> > q, vector
 	}
 	return 0;	
 }
+////////////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > coToVe(vector<GLfloat> v, int w) {
 	vector<vector<GLfloat> > ret(4);
 	ret[0].push_back(v[0]);
@@ -108,6 +111,7 @@ vector<vector<GLfloat> > coToVe(vector<GLfloat> v, int w) {
 	ret[3].push_back(w);
 	return ret;
 }
+////////////////////////////////////////////////////////////////////////////////////
 vector<GLfloat> veToCo(vector<vector<GLfloat> > v) {
 	vector<GLfloat> ret(3);
 	ret[0]=v[0][0];
@@ -115,7 +119,7 @@ vector<GLfloat> veToCo(vector<vector<GLfloat> > v) {
 	ret[2]=v[2][0];
 	return ret;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > multMatrix(vector<vector<GLfloat> > a, vector<vector<GLfloat> > b) {
 	if (a[0].size()!=b.size()) {
 		cout << "Dimensao incorreta da matriz" << endl;
@@ -133,6 +137,7 @@ vector<vector<GLfloat> > multMatrix(vector<vector<GLfloat> > a, vector<vector<GL
 	}
 	return ret;
 }
+////////////////////////////////////////////////////////////////////////////////////
 vector<vector<GLfloat> > inverse(vector<vector<GLfloat> > m) {
 	vector<vector<GLfloat> > c(m.size());
 	for (int i=0; i<c.size(); i++) {
@@ -156,15 +161,15 @@ vector<vector<GLfloat> > inverse(vector<vector<GLfloat> > m) {
 	}
 	return ret;
 }
-
+////////////////////////////////////////////////////////////////////////////////////
 class Poliedro{
 	public:
-	vector <vector <int> > faces;
-	vector <vector<GLfloat> > vertices;
 	GLfloat angulo;
+	vector <vector <int> > faces;
 	vector<vector<int> > arestas;
 	vector<vector<int> > spanningTree;
-	
+	vector <vector<GLfloat> > vertices;
+	////////////////////////////////////////////////////////////////////////////////////
 	int isInVector(int v1, int v2, vector<vector<int> > v) {
 		for (int i=0; i<v.size(); i++) {
 			if ((v1==v[i][0] && v2==v[i][1]) || (v2==v[i][0] && v1==v[i][1])) {
@@ -173,6 +178,7 @@ class Poliedro{
 		}
 		return -1;
 	}
+	////////////////////////////////////////////////////////////////////////////////////
 	bool isInVector(int v1, vector<int> v) {
 		for (int i=0; i<v.size(); i++) {
 			if (v1==v[i]) {
@@ -181,6 +187,7 @@ class Poliedro{
 		}
 		return false;
 	}
+	////////////////////////////////////////////////////////////////////////////////////
 	void generateArestas() {
 		for (int i=0; i<faces.size(); i++) {
 			for (int j=0; j<faces[i].size(); j++) {
@@ -206,6 +213,7 @@ class Poliedro{
 			}
 		}
 	}
+	////////////////////////////////////////////////////////////////////////////////////
 	Poliedro(bool tipo){
 		if (tipo){
 			angulo = 90;
@@ -238,7 +246,7 @@ class Poliedro{
 			generateArestas();
 		}
 	}
-	
+	////////////////////////////////////////////////////////////////////////////////////
 	void DesenhaFace(int i, vector<pair<GLfloat, GLfloat> > tc) {
 		GLfloat color[] = {0.0, 0.0, 1.0, 1.0};
 		GLfloat white[]  ={1.0, 1.0, 1.0, 1.0};
@@ -258,7 +266,7 @@ class Poliedro{
 			}
 		glEnd();
 	}
-	
+	////////////////////////////////////////////////////////////////////////////////////
 	void bfs(int sourceFace) {
 		vector<bool> marking(faces.size());
 		vector<vector<int> > adjacencyVector(faces.size());
@@ -296,7 +304,7 @@ class Poliedro{
 			reverse(spanningTree[i].begin(), spanningTree[i].end());
 		}
 	}
-	
+	////////////////////////////////////////////////////////////////////////////////////
 	pair<vector<GLfloat>, vector<GLfloat> > getAresta(int face1, int face2) {
 		int i=arestaPosition(face1, face2, arestas);
 		for (int j=0; j<faces[face1].size(); j++) {
@@ -309,7 +317,7 @@ class Poliedro{
 			}
 		}
 	}
-	
+	////////////////////////////////////////////////////////////////////////////////////
 	int arestaPosition(int f1, int f2, vector<vector<int> > v) {
 		for (int i=0; i<v.size(); i++) {
 			if ((f1==v[i][2] && f2==v[i][3]) || (f2==v[i][2] && f1==v[i][3])) {
@@ -318,7 +326,6 @@ class Poliedro{
 		}
 		return -1;
 	}
-	
 	int previous(vector<int> v, int i) {
 		if (i==0) {
 			return v.back();
@@ -326,7 +333,7 @@ class Poliedro{
 			return v[i-1];
 		}
 	}
-	
+	////////////////////////////////////////////////////////////////////////////////////
 	vector<vector<pair<vector<GLfloat>, vector<GLfloat> > > > Transf() {
 		vector<vector<pair<vector<GLfloat>, vector<GLfloat> > > > ret(faces.size());
 		int c=1;
