@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <math.h>
-#include "classe.h"
+#include "anemona.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GL/GLAux.h>
 
@@ -275,7 +275,6 @@ void display(){
 		if (width>=2*height) {
 			dx = floor((width-2*height)/2.0);
 			dy = 0;
-		//	w=2*height;
 			h=height;
 		} else {
 			dx = 0;
@@ -408,7 +407,7 @@ void mainMenu(int option){
 	}
 	glutPostRedisplay();
 }
-
+//Estrutura do Menu de seleção
 void createMenu() {
 	int menu, submenu1, submenu2;
 	

@@ -40,6 +40,7 @@ vector<vector<GLfloat> > normalize(vector<vector<GLfloat> > v) {
 	ret[2][0]/=mod;
 	return ret;
 }
+
 vector<vector<GLfloat> > transpose(vector<vector<GLfloat> > m) {
 	vector<vector<GLfloat> > ret(m[0].size());
 	for (int i=0; i<ret.size(); i++) {
@@ -50,6 +51,7 @@ vector<vector<GLfloat> > transpose(vector<vector<GLfloat> > m) {
 	}
 	return ret;
 }
+//calculo do determinante
 GLfloat determinant(vector<vector<GLfloat> > m) {
 	if (m.size()==1) {
 		return m[0][0];
@@ -66,7 +68,6 @@ GLfloat determinant(vector<vector<GLfloat> > m) {
 	return sum;
 }
 int Orientation3p(vector<vector<GLfloat> > p, vector<vector<GLfloat> > q, vector<vector<GLfloat> > r) {
-//	cout << "OK" << endl;
 	vector<vector<GLfloat> > a[3]={p, q, r};
 	vector<vector<GLfloat> > matrix(3);
 	for (int i=0; i<3; i++) {
@@ -75,13 +76,10 @@ int Orientation3p(vector<vector<GLfloat> > p, vector<vector<GLfloat> > q, vector
 		if (i==0) {
 			continue;
 		}
-	//	cout << "OK" << endl;
 		for (int j=0; j<3; j++) {
 			matrix[i][j]=a[j][i-1][0];
 		}
-
 	}
-//	cout << "OK" << endl;
 	int det=determinant(matrix);
 	if (det>0) {
 		return 1;
@@ -134,8 +132,7 @@ vector<vector<GLfloat> > inverse(vector<vector<GLfloat> > m) {
 				m2[k].erase(m2[k].begin()+j);
 			}
 			c[i][j]=determinant(m2)*pow(-1,i+j+2);
-		}
-		
+		}	
 	}
 	vector<vector<GLfloat> > ret;
 	ret=transpose(c);
@@ -147,6 +144,7 @@ vector<vector<GLfloat> > inverse(vector<vector<GLfloat> > m) {
 	}
 	return ret;
 }
+
 class Poliedro{
 	public:
 	vector <vector <int> > faces;
@@ -200,7 +198,10 @@ class Poliedro{
 		if (tipo){
 			angulo = 90;
 				GLfloat v[][3]={{0.5, -0.5, 0.5},{0.5, 0.5, 0.5},{-0.5, -0.5, 0.5},{-0.5, -0.5, 0.5},{0.5, -0.5, -0.5},{0.5, 0.5, -0.5},{-0.5, 0.5, -0.5},{-0.5, -0.5, -0.5}};
-				
+				for (int i=0; i<8; i++) {
+					vector<GLfloat> vertice(v[i], v[i]+sizeof(v[i])/sizeof(GLfloat));
+					vertices.push_back(vertice);
+				}
 				int f[][4]={{0,1,2,3},
 				   {7,6,5,4},
 				   {4,5,1,0},
@@ -217,8 +218,11 @@ class Poliedro{
 			angulo = 180-acos(-1.0/sqrt(5))*180/M_PI;
 			GLfloat t=(1.0 + sqrt(5.0)) / 2.0; 
 			GLfloat r=1.0/t;
-			GLfloat v[][3]={{- 0.5, - 0.5, - 0.5},{- 0.5, - 0.5,  0.5},{- 0.5,  0.5, - 0.5},{- 0.5,  0.5,  0.5},{0.5, - 0.5, - 0.5},{0.5, - 0.5,  0.5},{0.5,  0.5, - 0.5},{0.5,  0.5,  0.5},{0, - r/2, - t/2},{0, - r/2,  t/2},{0,  r/2, - t/2},{0,  r/2,  t/2},{- r/2, - t/2,  0},{- r/2,  t/2,  0},{r/2, - t/2,  0 },{r/2,  t/2,  0},{- t/2,  0, - r/2},{},{}};
-			
+			GLfloat v[][3]={{- 0.5, - 0.5, - 0.5},{- 0.5, - 0.5,  0.5},{- 0.5,  0.5, - 0.5},{- 0.5,  0.5,  0.5},{0.5, - 0.5, - 0.5},{0.5, - 0.5,  0.5},{0.5,  0.5, - 0.5},{0.5,  0.5,  0.5},{0, - r/2, - t/2},{0, - r/2,  t/2},{0,  r/2, - t/2},{0,  r/2,  t/2},{- r/2, - t/2,  0},{- r/2,  t/2,  0},{r/2, - t/2,  0 },{r/2,  t/2,  0},{- t/2,  0, - r/2},{t/2,  0, - r/2},{- t/2,  0,  r/2},{t/2,  0,  r/2}};
+			for (int i=0; i<20; i++) {
+				vector<GLfloat> vertice(v[i], v[i]+sizeof(v[i])/sizeof(GLfloat));
+				vertices.push_back(vertice);
+			}
 			int f[][5]={{3, 11,  7, 15, 13},
 				{7, 19, 17, 6, 15},
 				{17,  4,  8, 10, 6},
