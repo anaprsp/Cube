@@ -325,16 +325,6 @@ void comandos( int key, int x, int y ) {
   glutPostRedisplay(); 
 }
 
-
-void myMouse(int b, int s, int x, int y) {
-    if (b==GLUT_LEFT_BUTTON) {
-        if (s==GLUT_UP) {
-            open = not open;
-            angle=pAngle/30.0;
-            glutPostRedisplay();
-        }
-    }
-}
 void initializeTexture() {
 	myPixelArray = LoadBMP(imageFile);
 	GLuint textureID; // the ID of this texture
@@ -482,7 +472,7 @@ int index(int x, int y) {
 			vec3.push_back(wc.first);
 			vec3.push_back(wc.second);
 			vec3.push_back(0);
-			vector<vector<GLfloat> > p = coToVe(vec3, 0),1);
+			vector<vector<GLfloat> > p = coToVe(vec3,1);
 			wc=windowCoordinates (vertices[faces[i][next]], i);
 			vector<GLfloat> vec1,vec2;
 			vec1.push_back(wc.first);
@@ -491,7 +481,7 @@ int index(int x, int y) {
 			vec2.push_back(x);
 			vec2.push_back(y);
 			vec2.push_back(0);
-			vector<vector<GLfloat> > q = coToVe(vec1, 0),1);
+			vector<vector<GLfloat> > q = coToVe(vec1,1);
 			vector<vector<GLfloat> > r = coToVe(vec2,1);
 			sum+=Orientation3p(p,q,r);
 		}
@@ -543,7 +533,7 @@ void myMotion(int x, int y) {
 }
 
 void myKeyboard(unsigned char key, int x, int y ) {
-	 else if (key=='1') {
+	if (key=='1') {
 		type=HEXAHEDRON;
 		open=false;
 		NumFaces=6;
@@ -588,14 +578,13 @@ void initializations() {
 	createMenu();
 }
 int main(int argc, char* argv[]){
- 
   glutInit(&argc,argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
   glutInitWindowSize(1080,540);
   glutCreateWindow("Procurando Nemo");
   glEnable(GL_DEPTH_TEST);
   glutDisplayFunc(display);
-  glutSpecialFunc(specialKeys);
+  glutSpecialFunc(comandos);
   glutMouseFunc(myMouse);
   glutMotionFunc(myMotion);
   glutReshapeFunc(myReshape);
@@ -604,6 +593,5 @@ int main(int argc, char* argv[]){
   initializations();
   glutMainLoop();
   return 0;
- 
 }
 

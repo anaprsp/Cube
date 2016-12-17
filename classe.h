@@ -50,21 +50,6 @@ vector<vector<GLfloat> > transpose(vector<vector<GLfloat> > m) {
 	}
 	return ret;
 }
-vector<vector<GLfloat> > coToVe(vector<GLfloat> v, int w) {
-	vector<vector<GLfloat> > ret(4);
-	ret[0].push_back(v[0]);
-	ret[1].push_back(v[1]);
-	ret[2].push_back(v[2]);
-	ret[3].push_back(w);
-	return ret;
-}
-vector<GLfloat> veToCo(vector<vector<GLfloat> > v) {
-	vector<GLfloat> ret;
-	ret[0]=v[0][0];
-	ret[1]=v[1][0];
-	ret[2]=v[2][0];
-	return ret;
-}
 GLfloat determinant(vector<vector<GLfloat> > m) {
 	if (m.size()==1) {
 		return m[0][0];
@@ -80,6 +65,47 @@ GLfloat determinant(vector<vector<GLfloat> > m) {
 	}
 	return sum;
 }
+int Orientation3p(vector<vector<GLfloat> > p, vector<vector<GLfloat> > q, vector<vector<GLfloat> > r) {
+//	cout << "OK" << endl;
+	vector<vector<GLfloat> > a[3]={p, q, r};
+	vector<vector<GLfloat> > matrix(3);
+	for (int i=0; i<3; i++) {
+		matrix[i].resize(3);
+		matrix[0][i]=1;
+		if (i==0) {
+			continue;
+		}
+	//	cout << "OK" << endl;
+		for (int j=0; j<3; j++) {
+			matrix[i][j]=a[j][i-1][0];
+		}
+
+	}
+//	cout << "OK" << endl;
+	int det=determinant(matrix);
+	if (det>0) {
+		return 1;
+	} else if (det<0) {
+		return -1;
+	}
+	return 0;	
+}
+vector<vector<GLfloat> > coToVe(vector<GLfloat> v, int w) {
+	vector<vector<GLfloat> > ret(4);
+	ret[0].push_back(v[0]);
+	ret[1].push_back(v[1]);
+	ret[2].push_back(v[2]);
+	ret[3].push_back(w);
+	return ret;
+}
+vector<GLfloat> veToCo(vector<vector<GLfloat> > v) {
+	vector<GLfloat> ret;
+	ret[0]=v[0][0];
+	ret[1]=v[1][0];
+	ret[2]=v[2][0];
+	return ret;
+}
+
 vector<vector<GLfloat> > multMatrix(vector<vector<GLfloat> > a, vector<vector<GLfloat> > b) {
 	if (a[0].size()!=b.size()) {
 		cout << "Dimensao incorreta da matriz" << endl;
