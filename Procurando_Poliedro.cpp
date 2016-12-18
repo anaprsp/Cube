@@ -10,8 +10,10 @@
 #include <stdarg.h>
 #include <math.h>
 #define GL_GLEXT_PROTOTYPES
+#define FORMAT 0x80E0
 #include <GL/GLAux.h>
 #include "anemona.h"
+
 
 int width;
 int height;
@@ -29,36 +31,68 @@ bool open=false;
 bool tipo=false;
 bool showEditor=false;
 bool updateTexture = true;
-
+bool moving = false;
+char * imageFile = (char *)"Nemo.bmp";
 GLfloat pAngle;
 GLfloat angle=0;
-
-GLuint textureID;
-AUX_RGBImageRec *myPixelArray; 
-
-char * imageFile = (char *)"Nemo.bmp";
-
+vector<vector<vector<GLfloat> > > facesModelview(NumFaces);
+vector<vector<vector<GLfloat> > > facesProjection(NumFaces);
 vector<pair<int, int> > movingVertices;
 vector<vector<GLfloat> > texCoordMatrix;
 vector<vector<pair<GLfloat, GLfloat> > > texCoord;
-vector<vector<vector<GLfloat> > > facesModelview(NumFaces);
-vector<vector<vector<GLfloat> > > facesProjection(NumFaces);
+unsigned int imageWidth, imageHeight;
+GLuint textureID;
+unsigned char *myPixelArray; 
+
+
 
 //////////////////////////////////////////////////////////////////////////////
-AUX_RGBImageRec *LoadBMP(char *Filename){
-	FILE *File=NULL;
-	if (!Filename) {
-		return NULL;         
-	}
-	File=fopen(Filename,"r");	
-	if (File)
-	{
-		fclose(File);			        
-		return auxDIBImageLoad(Filename);
-	}
-	return NULL;			
+void LoadBMP(char *Filename){
+ 	// Data read from the header of the BMP file
+ 	unsigned char header[54]; // Each BMP file begins by a 54-bytes header
+ 	unsigned int dataPos;     // Position in the file where the actual data begins
+ 	unsigned int imageSize;   // = width*height*3
+ 	// Actual RGB data
+ 	unsigned char * data;
+ 	
+ 	FILE * file = fopen(Filename,"rb");
+ 	if (!file){printf("Image could not be opened\n"); return;}
+ 	if ( fread(header, 1, 54, file)!=54 ){ // If not 54 bytes read : problem
+ 	    printf("Not a correct BMP file\n");
+ 	    return;
+  	}
+  	if ( header[0]!='B' || header[1]!='M' ){
+     printf("Not a correct BMP file\n");
+     return;
+  	}
+    // Read ints from the byte array
+ 	dataPos    = *(int*)&(header[0x0A]);
+ 	imageSize  = *(int*)&(header[0x22]);
+ 	imageWidth      = *(int*)&(header[0x12]);
+ 	imageHeight     = *(int*)&(header[0x16]);
+ 	
+ 	// Some BMP files are misformatted, guess missing information
+ 	if (imageSize==0)    imageSize=imageWidth*imageHeight*4; // 3 : one byte for each Red, Green and Blue component
+ 	if (dataPos==0)      dataPos=54; // The BMP header is done that way
+ 	// Create a buffer
+ 	myPixelArray = new unsigned char [imageSize];
+ 	
+ 	// Read the actual data from the file into the buffer
+ 	fread(myPixelArray,1,imageSize,file);
+ 	
+ 	//Everything is in memory now, the file can be closed
+ 	fclose(file);
+ 	for (int i=0; i<imageSize/4; i++) {
+ 		unsigned char b = myPixelArray[i*4];
+ 		unsigned char g = myPixelArray[1+i*4];
+ 		unsigned char r = myPixelArray[2+i*4];
+ 		myPixelArray[i*4] = r;
+ 		myPixelArray[1+i*4] = g;
+ 		myPixelArray[2+i*4] = b;
+ 	}
+ 			
 }
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////  	
 vector<vector<GLfloat> > getModelview() {
 	vector<vector<GLfloat> > modelview(4);
 	GLfloat mv[16];
@@ -333,13 +367,14 @@ void comandos( int key, int x, int y ) {
 }
 //////////////////////////////////////////////////////////////////////////////
 void initializeTexture() {
-	myPixelArray = LoadBMP(imageFile);
-	GLuint textureID; 
-	glGenTextures(1, &textureID); 
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glTexImage2D(GL_TEXTURE_2D, 0, 3, myPixelArray->sizeX, myPixelArray->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, myPixelArray->data);
-	glEnable(GL_TEXTURE_2D); 
-	glBindTexture(GL_TEXTURE_2D, textureID); 
+	LoadBMP(imageFile);
+ 	GLuint textureID; 
+ 	glGenTextures(1, &textureID); 
+ 	glBindTexture(GL_TEXTURE_2D, textureID); 
+ 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, myPixelArray);
+ 	glEnable(GL_TEXTURE_2D); 
+ 	glBindTexture(GL_TEXTURE_2D, textureID); 
+ 	
 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -544,10 +579,10 @@ void myKeyboard(unsigned char key, int x, int y ) {
 }
 //////////////////////////////////////////////////////////////////////////////
 void initializations() {
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glEnable(GL_NORMALIZE);
-	glShadeModel(GL_SMOOTH);
-	glEnable(GL_LIGHTING); 
+	glClearColor(0.0, 0.0, 0.0, 1.0); 
+ 	glEnable(GL_NORMALIZE); 
+ 	glShadeModel(GL_SMOOTH); 
+ 	glEnable(GL_LIGHTING);
 	GLfloat ambientIntensity[4] = {0.8, 0.8, 0.8, 1.0};
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientIntensity);
 	GLfloat lt0Intensity[4] = {1.5, 1.5, 1.5, 1.0};
