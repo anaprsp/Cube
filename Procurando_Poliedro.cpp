@@ -72,7 +72,7 @@ void LoadBMP(char *Filename){
  	imageHeight     = *(int*)&(header[0x16]);
  	
  	// Some BMP files are misformatted, guess missing information
- 	if (imageSize==0)    imageSize=imageWidth*imageHeight*4; // 3 : one byte for each Red, Green and Blue component
+ 	if (imageSize==0)    imageSize=imageWidth*imageHeight*3; // 3 : one byte for each Red, Green and Blue component
  	if (dataPos==0)      dataPos=54; // The BMP header is done that way
  	// Create a buffer
  	myPixelArray = new unsigned char [imageSize];
@@ -82,13 +82,13 @@ void LoadBMP(char *Filename){
  	
  	//Everything is in memory now, the file can be closed
  	fclose(file);
- 	for (int i=0; i<imageSize/4; i++) {
- 		unsigned char b = myPixelArray[i*4];
- 		unsigned char g = myPixelArray[1+i*4];
- 		unsigned char r = myPixelArray[2+i*4];
- 		myPixelArray[i*4] = r;
- 		myPixelArray[1+i*4] = g;
- 		myPixelArray[2+i*4] = b;
+ 	for (int i=0; i<imageSize/3; i++) {
+ 		unsigned char b = myPixelArray[i*3];
+ 		unsigned char g = myPixelArray[1+i*3];
+ 		unsigned char r = myPixelArray[2+i*3];
+ 		myPixelArray[i*3] = r;
+ 		myPixelArray[1+i*3] = g;
+ 		myPixelArray[2+i*3] = b;
  	}
  			
 }
@@ -371,7 +371,7 @@ void initializeTexture() {
  	GLuint textureID; 
  	glGenTextures(1, &textureID); 
  	glBindTexture(GL_TEXTURE_2D, textureID); 
- 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, myPixelArray);
+ 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, myPixelArray);
  	glEnable(GL_TEXTURE_2D); 
  	glBindTexture(GL_TEXTURE_2D, textureID); 
  	
